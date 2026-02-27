@@ -1,8 +1,6 @@
 import logging
 
 def stream_logger(module_name, level="ERROR"):
-
-
     logger = logging.getLogger(module_name)
     logger.setLevel(getattr(logging, level)) 
 

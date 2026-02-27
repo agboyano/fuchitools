@@ -3,8 +3,16 @@ import sqlite3
 import json
 import pandas as pd
 
+
+
+class SqliteConnection(sqlite3.Connection):
+    def __init__(self, path, *args, **kwargs):
+        super().__init__(path, *args, **kwargs)
+        self.path = path
+
+
 def is_conn(conn):
-    return not(isinstance(conn, str)) 
+    return isinstance(conn, sqlite3.Connection) 
 
 
 def connection(conn):
@@ -15,6 +23,7 @@ def connection(conn):
     if is_conn(conn):
         return conn, True
     
+    return SqliteConnection(conn), False
     return sqlite3.connect(conn), False
 
 
