@@ -1,8 +1,7 @@
 # Muy optimista
 import sqlite3
-import json
 import pandas as pd
-
+from fuchitools.datetimes import to_datetime
 
 
 class SqliteConnection(sqlite3.Connection):
@@ -45,11 +44,21 @@ def conn_or_db(func, *args, **kwargs):
     return wrapper
 
 
-def date_to_sqlite(x):
+def datetime_to_sqlite(x):
     try:
         return x.strftime("%Y-%m-%d 00:00:00")
     except:
         return None
+
+
+def to_sqlite_dt(x):
+    return datetime_to_sqlite(to_datetime(x))
+
+
+def df_datetimes_to_sqlite(df, dt_columns):
+    for col in dt_columns:
+        df.loc[:, col] = df[col].apply(datetime_to_sqlite)
+
 
 @conn_or_db
 def exe(conn, *sql):
@@ -87,6 +96,10 @@ def table_exists(conn, table):
     except:
         return False
 
+
+@conn_or_db
+def df_to_sql(conn, df, table, index=False, if_exists='fail'):
+    df.to_sql(table, conn, index=index, if_exists=if_exists)
         
 
 def sheet_to_sqlite(excel_filename, db_filename, table_name, sheet_name=None):
@@ -145,5 +158,10 @@ def delete_variable(conn, variable, table="variables"):
 @conn_or_db 
 def delete_all_variables(conn, table="variables"):
     return conn.execute(f"DELETE FROM {table};")
+
+@conn_or_db
+def df_from_sqlite(conn, sql, params=None, parse_dates=None):   
+    return pd.read_sql(sql, conn, params=params, parse_dates=parse_dates)
+
 
 

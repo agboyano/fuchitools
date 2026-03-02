@@ -140,6 +140,11 @@ def datetime_from_str(
         ValueError: Si el formato de la cadena es inválido o los componentes de fecha son incorrectos.
     """
     x = x.strip()
+    try:
+        return datetime.datetime.fromisoformat(x)
+    except ValueError:
+        pass
+    
     dts = x.split()
     hora: Optional[str] = None
 
@@ -153,6 +158,7 @@ def datetime_from_str(
 
     if len(fs) == 1:
         fs = fecha.split("-")
+    
     if len(fs) == 1:
         # Intentar formato ISO
         dt = datetime.datetime.fromisoformat(fecha)
