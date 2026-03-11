@@ -55,37 +55,40 @@ def firefox(
         abs_download_dir = os.path.abspath(download_dir)
 
         # Set preference to use a custom download folder
+        # When set to 0, Firefox saves all downloaded files 
+        # to the user's desktop. When set to 1, these downloads 
+        # go to the Downloads folder. When set to 2, the location 
+        # specified for the most recent download is used again.
         options.set_preference("browser.download.folderList", 2)
         options.set_preference("browser.download.dir", abs_download_dir)
+    else:
+        # Downloads go to the Downloads folder.
+        options.set_preference("browser.download.folderList", 1)
+    
+    # Hide the download start dialog
+    options.set_preference("browser.download.manager.showWhenStarting", False)
 
-        # Hide the download start dialog
-        options.set_preference("browser.download.manager.showWhenStarting", False)
+    # Set MIME types to download automatically without asking
+    # You can add more MIME types to this string as needed
+    mime_types = (
+        "application/pdf,"
+        "application/octet-stream,"
+        "application/zip,"
+        "application/x-zip-compressed,"
+        "application/msword,"
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document,"
+        "text/csv,"
+        "application/vnd.ms-excel,"
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    options.set_preference("browser.helperApps.neverAsk.saveToDisk", mime_types)
 
-        # Set MIME types to download automatically without asking
-        # You can add more MIME types to this string as needed
-        mime_types = (
-            "application/pdf,"
-            "application/octet-stream,"
-            "application/zip,"
-            "application/x-zip-compressed,"
-            "application/msword,"
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document,"
-            "text/csv,"
-            "application/vnd.ms-excel,"
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
-        options.set_preference("browser.helperApps.neverAsk.saveToDisk", mime_types)
-
-        # Disable the built-in PDF viewer to force PDF downloads
-        options.set_preference("pdfjs.disabled", True)
+    # Disable the built-in PDF viewer to force PDF downloads
+    options.set_preference("pdfjs.disabled", True)
 
 
     options.set_preference("devtools.jsonview.enabled", False)
-    options.set_preference("browser.download.folderList", 2)
-    options.set_preference("browser.download.manager.showWhenStarting", False)
-    options.set_preference(
-        "browser.helperApps.neverAsk.saveToDisk", "application/octet-stream"
-    )
+    #options.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/octet-stream")
 
     # 2. Configure Service (Driver Path)
     service = None
@@ -131,3 +134,6 @@ def submit_by_id(browser, id):
 def click_by_class(browser, id):
     element = browser.find_element(By.CLASS_NAME, id)
     element.click()
+
+def download_dir(browser):
+    return browser.options.preferences['browser.download.dir']
