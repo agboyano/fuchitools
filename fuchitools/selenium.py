@@ -46,11 +46,11 @@ def firefox(
         options.add_argument("-no-remote")       # Evitar conexión a instancia existente
 
     # Set Firefox binary location if provided
-    if binary_path:
+    if binary_path is not None:
         options.binary_location = binary_path
 
     # Configure Download Preferences if directory is provided
-    if download_dir:
+    if download_dir is not None:
         # Ensure the path is absolute
         abs_download_dir = os.path.abspath(download_dir)
 
@@ -79,18 +79,17 @@ def firefox(
         # Disable the built-in PDF viewer to force PDF downloads
         options.set_preference("pdfjs.disabled", True)
 
-    if download_dir is not None:
-        options.set_preference("devtools.jsonview.enabled", False)
-        options.set_preference("browser.download.folderList", 2)
-        options.set_preference("browser.download.manager.showWhenStarting", False)
-        options.set_preference("browser.download.dir", download_dir)
-        options.set_preference(
-            "browser.helperApps.neverAsk.saveToDisk", "application/octet-stream"
-        )
+
+    options.set_preference("devtools.jsonview.enabled", False)
+    options.set_preference("browser.download.folderList", 2)
+    options.set_preference("browser.download.manager.showWhenStarting", False)
+    options.set_preference(
+        "browser.helperApps.neverAsk.saveToDisk", "application/octet-stream"
+    )
 
     # 2. Configure Service (Driver Path)
     service = None
-    if firefox_driver_path:
+    if firefox_driver_path is not None:
         service = Service(executable_path=firefox_driver_path)
     else:
         # If None, Selenium Manager (built into Selenium 4.6+) will attempt
@@ -127,3 +126,8 @@ def select_by_id(browser, element_id, value):
 def submit_by_id(browser, id):
     form_element = browser.find_element(By.ID, id)
     form_element.submit()
+
+
+def click_by_class(browser, id):
+    element = browser.find_element(By.CLASS_NAME, id)
+    element.click()
