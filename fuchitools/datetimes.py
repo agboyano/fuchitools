@@ -4,26 +4,26 @@ from typing import Union, Optional
 import pandas as pd  # type: ignore
 
 def timestamp():
-    return datetime.now().isoformat()
+    return datetime.datetime.now().isoformat()
 
 
 def now():
-    datetime.now()
+    return datetime.datetime.now()
 
 
 def today():
-    return start_of_day(datetime.datetime.today())
+    return to_date(datetime.datetime.today())
 
 
 def prev_day_not_weekend(date=None):
     if date is None:
         date = today()
-
-    date = to_datetime(date)
-    for i in range(1, 30):
-        last_day = date - datetime.timedelta(days=i)
-        if last_day.weekday() != 5 and last_day.weekday() != 6:
-            return last_day
+    
+    prev_day = date - datetime.timedelta(days=1)
+    # weekday(): Monday=0 ... Friday=4, Saturday=5, Sunday=6
+    while prev_day.weekday() >= 5:
+        prev_day -= datetime.timedelta(days=1)
+    return prev_day
 
 
 def del_microseconds(x: datetime.datetime) -> datetime.datetime:
