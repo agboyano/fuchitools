@@ -9,6 +9,8 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select, WebDriverWait
 
+import undetected_chromedriver as uc
+
 
 def sleep(a, b=None):
     if b is None:
@@ -102,6 +104,91 @@ def firefox(
     # 3. Initialize Driver
     driver = webdriver.Firefox(service=service, options=options)
 
+    return driver
+
+
+def undetected_chrome_driver(download_dir=None, binary_path=None, chrome_driver_path=None, headless=False):
+    """
+    Initializes and returns a Chrome WebDriver instance with custom configurations.
+
+    Args:
+        download_dir (str, optional): Path to the directory for downloads. Defaults to None.
+        binary_path (str, optional): Path to the Chrome browser executable. Defaults to None.
+        chrome_driver_path (str, optional): Path to the ChromeDriver executable. Defaults to None.
+        headless (bool, optional): Run browser in headless mode. Defaults to False.
+
+    Returns:
+        selenium.webdriver.chrome.webdriver.WebDriver: The browser object.
+    """
+    
+    # 1. Configure Options
+    options = uc.ChromeOptions()
+    
+    # Set headless mode
+    if headless:
+        options.add_argument("--headless")
+    
+    # Set Chrome binary location if provided
+    if binary_path:
+        options.binary_location = binary_path
+
+    # Configure Download Preferences if directory is provided
+    if download_dir:
+        # Ensure the path is absolute
+        abs_download_dir = os.path.abspath(download_dir)
+        
+        # Set download directory
+        prefs = {
+            "download.default_directory": abs_download_dir,
+            "download.prompt_for_download": False,
+            "download.directory_upgrade": True,
+            # Set MIME types to download automatically without asking
+            "safebrowsing.enabled": True
+        }
+        
+        # Set MIME types to download automatically
+        mime_types = (
+            "application/pdf,"
+            "application/octet-stream,"
+            "application/zip,"
+            "application/x-zip-compressed,"
+            "application/msword,"
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document,"
+            "text/csv,"
+            "application/vnd.ms-excel,"
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        prefs["download.extensions_to_open"] = ""
+        prefs["profile.default_content_setting_values.automatic_downloads"] = 1
+        
+        # Alternative approach for MIME types (Chrome handles this differently)
+        # Chrome doesn't have a direct equivalent to Firefox's neverAsk.saveToDisk
+        # Instead, we rely on download.prompt_for_download = False
+        
+        options.add_experimental_option("prefs", prefs)
+
+    # 2. Configure Service (Driver Path)
+    service = None
+    if chrome_driver_path:
+        service = Service(executable_path=chrome_driver_path)
+    else:
+        # If None, Selenium Manager (built into Selenium 4.6+) will attempt 
+        # to find or download the correct driver automatically.
+        #service = Service()
+        pass
+
+    # Additional options for better stability
+    if headless:
+        options.add_argument("--disable-gpu")
+        options.add_argument("--window-size=1920,1080")
+    
+    # Disable notifications and other popups
+    options.add_argument("--disable-notifications")
+    options.add_argument("--disable-popup-blocking")
+    
+    # 3. Initialize Driver
+    driver = uc.Chrome(browser_executable_path=binary_path, options=options)
+    
     return driver
 
 
