@@ -8,17 +8,18 @@ the defaults lean towards European date order, Spanish web forms and DuckDB.
 
 | Module | What it is for | Reference |
 |---|---|---|
-| `datetimes` | Turn anything date-shaped into `date` / `datetime` | [datetimes.md](datetimes.md) |
-| `duckdb` | Write a DataFrame into a DuckDB table, creating or upserting | [duckdb.md](duckdb.md) |
-| `sqlite` | SQL and DataFrames over sqlite3, plus a key/value table | [sqlite.md](sqlite.md) |
-| `pandas` | Read an Excel sheet, outer-join a list of DataFrames | [pandas.md](pandas.md) |
-| `selenium` | Configured Firefox/Chrome drivers and form helpers | [selenium.md](selenium.md) |
-| `jupyter` | Find, inspect, drive and stop local Jupyter kernels | [jupyter.md](jupyter.md) |
-| `misc` | A console logger in one line | [misc.md](misc.md) |
+| `datetimes` | Turn anything date-shaped into `date` / `datetime` | [documentation/datetimes.md](documentation/datetimes.md) |
+| `duckdb` | Write a DataFrame into a DuckDB table, creating or upserting | [documentation/duckdb.md](documentation/duckdb.md) |
+| `sqlite` | SQL and DataFrames over sqlite3, plus a key/value table | [documentation/sqlite.md](documentation/sqlite.md) |
+| `pandas` | Read an Excel sheet, outer-join a list of DataFrames | [documentation/pandas.md](documentation/pandas.md) |
+| `selenium` | Configured Firefox/Chrome drivers and form helpers | [documentation/selenium.md](documentation/selenium.md) |
+| `jupyter` | Find, inspect, drive and stop local Jupyter kernels | [documentation/jupyter.md](documentation/jupyter.md) |
+| `misc` | A console logger in one line | [documentation/misc.md](documentation/misc.md) |
 
-`jupyter.md` is longer than the others: as well as the API it records why the
-obvious approaches do not work and what had to be worked around, because none
-of that is recoverable from the code.
+Each page in [documentation/](documentation/) is the how-to for one module.
+The design record for `jupyter` — why the obvious approaches do not work, what
+was measured and what had to be worked around, none of it recoverable from the
+code — lives separately in [memory/jupyter.md](memory/jupyter.md).
 
 ## Importing
 
@@ -38,8 +39,8 @@ avoid confusing yourself.
 
 ## Installation and dependencies
 
-Declared in `pyproject.toml`, with lower bounds set below the installed
-versions so installing does not force upgrades:
+Declared in [pyproject.toml](pyproject.toml), with lower bounds set below the
+installed versions so installing does not force upgrades:
 
 `pandas`, `selenium`, `undetected-chromedriver`, `psutil`, `jupyter-client`,
 `jupyter-core`. The `test` extra adds `pytest` and `duckdb` — `fuchitools.duckdb`
@@ -56,9 +57,10 @@ work at runtime. The workspace works around it with
 python -m pytest tests -q
 ```
 
-261 tests. `test_sqlite.py` uses only temporary and in-memory databases.
-`test_jupyter.py` is entirely synthetic — no kernel is started,
-pinged, stopped or inspected — so it is safe to run with live notebooks open.
+261 tests, in [tests/](tests/). `test_sqlite.py` uses only temporary and
+in-memory databases. `test_jupyter.py` is entirely synthetic — no kernel is
+started, pinged, stopped or inspected — so it is safe to run with live
+notebooks open.
 
 ## A note on these documents
 
