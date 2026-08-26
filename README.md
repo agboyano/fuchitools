@@ -40,11 +40,25 @@ avoid confusing yourself.
 ## Installation and dependencies
 
 Declared in [pyproject.toml](pyproject.toml), with lower bounds set below the
-installed versions so installing does not force upgrades:
+installed versions so installing does not force upgrades. The base install
+needs only `pandas`; the heavier modules are extras:
 
-`pandas`, `selenium`, `undetected-chromedriver`, `psutil`, `jupyter-client`,
-`jupyter-core`. The `test` extra adds `pytest` and `duckdb` — `fuchitools.duckdb`
-takes the connection as an argument and never imports duckdb itself.
+| Extra | Brings | Needed by |
+|---|---|---|
+| `excel` | `openpyxl` | `fuchitools.pandas.load_excel` |
+| `selenium` | `selenium`, `undetected-chromedriver` | `fuchitools.selenium` |
+| `jupyter` | `psutil`, `jupyter-client`, `jupyter-core` | `fuchitools.jupyter` |
+| `all` | the three above | |
+| `test` | `pytest`, `duckdb`, plus `all` | running the test suite |
+
+```
+pip install -e ".[all,test]"
+```
+
+Importing `fuchitools.selenium` or `fuchitools.jupyter` without their extra
+raises an `ImportError` naming the extra to install. `fuchitools.duckdb` takes
+the connection as an argument and never imports duckdb itself, which is why
+duckdb is only a test dependency.
 
 The package is installed editable, via a PEP 660 import hook. Static analysers
 cannot follow that: Pylance reports the imports as unresolved even though they
@@ -57,10 +71,12 @@ work at runtime. The workspace works around it with
 python -m pytest tests -q
 ```
 
-261 tests, in [tests/](tests/). `test_sqlite.py` uses only temporary and
-in-memory databases. `test_jupyter.py` is entirely synthetic — no kernel is
-started, pinged, stopped or inspected — so it is safe to run with live
-notebooks open.
+341 tests, in [tests/](tests/), one file per module. Nothing external is
+touched: `test_sqlite.py` and `test_duckdb_update_table.py` use temporary or
+in-memory databases, `test_pandas.py` builds its workbooks in memory,
+`test_selenium.py` starts no browser, and `test_jupyter.py` is entirely
+synthetic — no kernel is started, pinged, stopped or inspected — so the suite
+is safe to run with live notebooks open.
 
 ## A note on these documents
 

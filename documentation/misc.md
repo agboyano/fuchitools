@@ -3,7 +3,7 @@
 One function, for scripts that want log output on the console without setting
 up logging properly.
 
-## `stream_logger(module_name, level="ERROR")`
+## `stream_logger(module_name, level="ERROR", fmt=None, stream=None)`
 
 ```python
 from fuchitools.misc import stream_logger
@@ -14,30 +14,29 @@ log.info("cargando cartera %s", 93702)
 log.error("no se pudo abrir %s", path)
 ```
 
-Returns a `logging.Logger` under `module_name` with a `StreamHandler` attached,
-both set to `level`. `level` is the name of a standard logging level as a
-string: `"DEBUG"`, `"INFO"`, `"WARNING"`, `"ERROR"`, `"CRITICAL"`.
+Returns the `logging.Logger` named `module_name` with a `StreamHandler`
+attached, both set to `level`.
 
-Two things to watch:
-
-- **Calling it twice with the same name attaches a second handler**, and every
-  message is then printed twice. `logging.getLogger` returns the same logger
-  object, but a new `StreamHandler` is added unconditionally. Call it once per
-  module, at import time, and keep the result.
-- **No formatter is set**, so lines come out as the bare message, with no
-  timestamp, level or logger name. For anything you will read later, attach a
-  formatter yourself:
+- `level` is a standard level name, case-insensitive (`"DEBUG"`, `"info"`,
+  ...) or an int (`logging.WARNING`). An unknown name raises `ValueError`.
+- `fmt` is an optional `logging.Formatter` format string. Without it, lines
+  come out as the bare message — no timestamp, level or logger name:
 
 ```python
-import logging
-from fuchitools.misc import stream_logger
-
-log = stream_logger(__name__, "INFO")
-log.handlers[0].setFormatter(
-    logging.Formatter("%(asctime)s %(levelname)-8s %(name)s | %(message)s")
-)
+log = stream_logger(__name__, "INFO", fmt="%(asctime)s %(levelname)-8s %(name)s | %(message)s")
 ```
+
+- `stream` is where to write; the default is `sys.stderr`, logging's own.
+
+**Calling it twice for the same name is safe.** The handler it attached the
+first time is found again and updated (level, stream, format) instead of a
+second one being added, so nothing is printed twice. Handlers you attached
+yourself are left alone.
 
 For a long-running or unattended job, prefer `logging.basicConfig` or a proper
 configuration: this helper exists to save three lines in a script, not to
 manage logging for an application.
+
+## Tests
+
+`tests/test_misc.py`, writing to in-memory streams.

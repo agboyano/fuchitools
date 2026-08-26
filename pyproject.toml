@@ -4,28 +4,48 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fuchitools"
-version = "0.0.2"
+version = "0.0.3"
 description = "Utilidades para programacion en python."
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    # datetimes, pandas, sqlite
+    # datetimes, pandas, sqlite, duckdb (duckdb itself is passed in by the caller)
     "pandas>=1.5",
-    # selenium
-    "selenium>=4.0",
+]
+
+[project.optional-dependencies]
+# fuchitools.pandas.load_excel needs an Excel engine
+excel = ["openpyxl>=3.1"]
+# fuchitools.selenium
+selenium = [
+    "selenium>=4.6",
     "undetected-chromedriver>=3.5",
-    # jupyter
+]
+# fuchitools.jupyter
+jupyter = [
     "psutil>=5.9",
     "jupyter-client>=8.0",
     "jupyter-core>=5.0",
 ]
-
-[project.optional-dependencies]
+all = [
+    "openpyxl>=3.1",
+    "selenium>=4.6",
+    "undetected-chromedriver>=3.5",
+    "psutil>=5.9",
+    "jupyter-client>=8.0",
+    "jupyter-core>=5.0",
+]
 test = [
     "pytest>=7.0",
     # only used by tests/test_duckdb_update_table.py; fuchitools.duckdb takes
     # the connection as an argument and never imports duckdb itself
     "duckdb>=0.9",
+    "openpyxl>=3.1",
+    "selenium>=4.6",
+    "undetected-chromedriver>=3.5",
+    "psutil>=5.9",
+    "jupyter-client>=8.0",
+    "jupyter-core>=5.0",
 ]
 
 [tool.setuptools.packages.find]

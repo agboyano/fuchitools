@@ -5,9 +5,10 @@ driver, then drive the page by element id. Written for the download-a-report
 kind of job, so most of the configuration is about making files land in a
 known directory without a dialog.
 
-Depends on `selenium` and `undetected-chromedriver`. Importing the module
-imports both, which is why [`__init__.py`](../fuchitools/__init__.py) does not
-pull it in automatically.
+Needs the `selenium` extra — `pip install fuchitools[selenium]` — which brings
+`selenium` and `undetected-chromedriver`. Importing the module without them
+raises an `ImportError` that says so. This is also why
+[`__init__.py`](../fuchitools/__init__.py) does not import it automatically.
 
 ## Building a driver
 
@@ -30,16 +31,20 @@ finally:
 Both return a normal Selenium driver — everything the Selenium API offers
 still works. What they set up for you:
 
-- **Downloads go to `download_dir`** with no prompt. A long list of MIME types
-  (pdf, zip, csv, doc, xls, xlsx, octet-stream) is marked save-without-asking,
-  and Firefox's built-in PDF viewer is disabled so PDFs download instead of
-  opening. Without `download_dir` they go to the browser's Downloads folder.
+- **Downloads go to `download_dir`** (made absolute) with no prompt. In Firefox
+  a long list of MIME types (pdf, zip, csv, doc, xls, xlsx, octet-stream) is
+  marked save-without-asking and the built-in PDF viewer is disabled so PDFs
+  download instead of opening. Without `download_dir` they go to the browser's
+  Downloads folder.
 - **`headless=True`** also sets a 1920x1080 window and disables GPU
   acceleration. Sites that lay out by viewport width behave very differently
-  at the default headless size, so the explicit dimensions matter.
+  at the default headless size, so the explicit dimensions matter. Chrome uses
+  the modern `--headless=new` mode.
 - **The driver binary is found for you.** Leave `firefox_driver_path` /
-  `chrome_driver_path` as None and Selenium Manager resolves it. Pass a path
-  only to pin a specific geckodriver or chromedriver.
+  `chrome_driver_path` as None: Selenium Manager resolves geckodriver, and
+  undetected-chromedriver downloads and patches the matching chromedriver.
+  Pass a path only to pin a specific one. (`chrome_driver_path` used to be
+  accepted and ignored; it is honoured now.)
 - `binary_path` points at the browser itself, for a portable install or a
   version pinned away from the system one.
 
@@ -48,17 +53,22 @@ Selenium Chrome: it is for sites that block obvious automation. Note that
 Chrome has no equivalent of Firefox's `neverAsk.saveToDisk`, so its downloads
 rely on `download.prompt_for_download = False` and are less airtight.
 
+The option objects are built by `_firefox_options(...)` and
+`_chrome_options(...)`, pure functions that start nothing; that is what the
+tests exercise, and what to call if you want the same configuration on a
+driver you construct yourself.
+
 ## Driving the page
 
 Every helper takes the browser first and finds elements by id, which is the
 common case in the old form-based sites this was written for.
 
 ```python
-input_by_id(browser, id, value)     # type into a field
-click_by_id(browser, id)            # click
-select_by_id(browser, element_id, value)   # choose an <option> by value
-submit_by_id(browser, id)           # submit a form
-click_by_class(browser, id)         # click, by class name instead
+input_by_id(browser, element_id, value)          # type str(value) into a field
+click_by_id(browser, element_id)                 # click
+select_by_id(browser, element_id, value, timeout=20)   # choose an <option> by value
+submit_by_id(browser, element_id)                # submit a form
+click_by_class(browser, class_name)              # click, by class name instead
 ```
 
 ```python
@@ -74,11 +84,12 @@ select_by_id(browser, "cboCartera", "93702")
 click_by_id(browser, "btnDescargar")
 ```
 
-`select_by_id` is the one with extra machinery: it waits up to 20 seconds for
-the element to appear and then **forces `display: block` on it via JavaScript**
-before selecting. That is for the custom dropdowns that hide the real
-`<select>` behind their own widget — Selenium refuses to interact with a
-hidden element, and this makes it visible enough to work.
+`select_by_id` is the one with extra machinery: it waits up to `timeout`
+seconds (20 by default) for the element to appear and then **forces
+`display: block` on it via JavaScript** before selecting. That is for the
+custom dropdowns that hide the real `<select>` behind their own widget —
+Selenium refuses to interact with a hidden element, and this makes it visible
+enough to work.
 
 The others do not wait. If the page is still loading they raise
 `NoSuchElementException`; add your own `WebDriverWait` where the page is slow.
@@ -95,7 +106,7 @@ exactly 3.000 s between requests is trivially recognisable.
 
 ## `download_dir(browser)`
 
-Returns the download directory the browser was configured with.
+Returns the download directory the browser was configured with, or `None`.
 
 ```python
 from pathlib import Path
@@ -105,8 +116,14 @@ descargas = Path(download_dir(browser))
 nuevo = max(descargas.glob("*.xlsx"), key=lambda p: p.stat().st_mtime)
 ```
 
-**Firefox only, and only when `download_dir` was passed.** It reads
-`browser.options.preferences['browser.download.dir']`, which is a Firefox
-preference; on a Chrome driver, or on a Firefox driver built without a
-download directory, it raises `KeyError` or `AttributeError`. Keep the path in
-a variable of your own if you need it on both.
+Works for both drivers built here: it reads Firefox's `browser.download.dir`
+preference or Chrome's `download.default_directory` pref. **It returns `None`
+when no `download_dir` was passed** (downloads went to the browser's own
+folder) or when the driver exposes no options at all — check for it before
+building a `Path`.
+
+## Tests
+
+`tests/test_selenium.py` starts no browser: it checks the option builders,
+`sleep` (with time patched) and `download_dir` against fake drivers. The
+whole file is skipped when the `selenium` extra is not installed.

@@ -2,6 +2,8 @@
 
 import uuid
 
+__all__ = ["duckdb_update_table"]
+
 
 def _quote(name):
     """Quote an SQL identifier."""
@@ -123,6 +125,11 @@ def duckdb_update_table(con, table, new_df, keys=None, protect_pk=True,
     """
     if new_df is None or new_df.empty:
         return 0
+
+    if isinstance(keys, str):
+        # A lone column name; iterating it as a list would split it into
+        # characters and produce a baffling "missing columns" error.
+        keys = [keys]
 
     def norm(name):
         return name if case_sensitive else name.lower()

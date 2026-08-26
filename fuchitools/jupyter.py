@@ -40,9 +40,32 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Union
 
-import psutil
-from jupyter_client import BlockingKernelClient
-from jupyter_core.paths import jupyter_path, jupyter_runtime_dir
+try:
+    import psutil
+    from jupyter_client import BlockingKernelClient
+    from jupyter_core.paths import jupyter_path, jupyter_runtime_dir
+except ImportError as exc:  # pragma: no cover - depends on the environment
+    raise ImportError(
+        "fuchitools.jupyter needs the 'jupyter' extra: pip install fuchitools[jupyter]"
+    ) from exc
+
+__all__ = [
+    "KernelInfo",
+    "ClientInfo",
+    "ExecutionResult",
+    "KernelUnreachable",
+    "KernelRef",
+    "runtime_dirs",
+    "classify_origin",
+    "list_active_kernels",
+    "execute_in_kernel",
+    "shutdown_kernel",
+    "running_in_kernel",
+    "current_kernel",
+    "kernel_clients",
+    "notebook_of",
+    "format_table",
+]
 
 PORT_FIELDS = ("shell_port", "iopub_port", "stdin_port", "control_port", "hb_port")
 

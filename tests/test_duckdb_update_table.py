@@ -42,6 +42,15 @@ def test_create_table_with_keys_sets_primary_key(con):
     assert rows(con, "SELECT id, v FROM t ORDER BY id") == [(1, "a"), (2, "b")]
 
 
+def test_keys_as_single_string_is_one_column(con):
+    df = pd.DataFrame({"security": ["a", "b"], "v": [1, 2]})
+    assert duckdb_update_table(con, "t", df, keys="security") == 2
+    assert table_pk(con, "t") == ["security"]
+    # upsert through the same spelling
+    assert duckdb_update_table(con, "t", pd.DataFrame({"security": ["b", "c"], "v": [20, 30]}), "security") == 1
+    assert rows(con, "SELECT security, v FROM t ORDER BY security") == [("a", 1), ("b", 20), ("c", 30)]
+
+
 def test_create_table_without_keys(con):
     df = pd.DataFrame({"id": [1, 2], "v": ["a", "b"]})
     assert duckdb_update_table(con, "t", df) == 2
