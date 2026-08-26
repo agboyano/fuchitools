@@ -4,7 +4,7 @@ import duckdb
 import pandas as pd
 import pytest
 
-from duckdb_update_table import duckdb_update_table
+from fuchitools.duckdb import duckdb_update_table
 
 
 @pytest.fixture

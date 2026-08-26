@@ -7,7 +7,25 @@ name = "fuchitools"
 version = "0.0.2"
 description = "Utilidades para programacion en python."
 requires-python = ">=3.9"
-dependencies = []
+dependencies = [
+    # datetimes, pandas, sqlite
+    "pandas>=1.5",
+    # selenium
+    "selenium>=4.0",
+    "undetected-chromedriver>=3.5",
+    # jupyter
+    "psutil>=5.9",
+    "jupyter-client>=8.0",
+    "jupyter-core>=5.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    # only used by tests/test_duckdb_update_table.py; fuchitools.duckdb takes
+    # the connection as an argument and never imports duckdb itself
+    "duckdb>=0.9",
+]
 
 [tool.setuptools.packages.find]
 include = ["fuchitools"]
