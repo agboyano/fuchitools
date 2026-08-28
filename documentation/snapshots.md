@@ -123,6 +123,51 @@ malformed rows raise `ValueError` at import, i.e. a collection error.
 Several matrices may live in one module (`test_a = snapshot_test(A)`,
 `test_b = snapshot_test(B, subdir="b")`); each gets its own folder.
 
+### Sharing an object between rows
+
+A value in `args` / `kwargs` that is **not** callable is passed as is, and the
+*same* object goes to every row that lists it. So one `sqlite3.Connection` --
+or any client, engine, file handle -- can serve the whole matrix: in the quick
+start, `matrix(db)` works the same whether `db` is a path or an open
+connection; the matrix does not care.
+
+Declare it in the **test module**, not in the notebook that launches the run:
+`generate` and `compare` start pytest in a subprocess (see
+[Python API](#python-api)), and an object opened in the notebook does not
+travel there. Two forms:
+
+```python
+# tests/test_pricing.py
+
+# eager: opened at collection time -- also with --snapshot2, where nothing runs
+import sqlite3
+conn = sqlite3.connect("db2.db")
+test_snapshot = snapshot_test(matrix(conn), subdir="pricing")
+
+# lazy and shared: a cached callable -- opened by the first row, the same object after
+from functools import lru_cache
+get_conn = lru_cache(maxsize=None)(lambda: sqlite3.connect("db2.db"))
+test_snapshot = snapshot_test(matrix(get_conn), subdir="pricing")
+```
+
+The lazy form is just the callable rule of the table above at work: every row
+calls `get_conn()` at test time and `lru_cache` returns the connection opened
+by the first one. Either form requires the functions in the matrix to accept a
+connection; a function that does `sqlite3.connect(db)` itself must keep
+receiving the path.
+
+Things to know:
+
+* rows run in order, in one process and one thread (no `check_same_thread`
+  trouble unless `pytest-xdist` is used -- then each worker imports the module
+  and opens its own connection). A row that writes, or leaves a transaction
+  open, is seen by the rows after it; read-only queries are unaffected;
+* nothing closes it: it dies with the pytest process
+  (`atexit.register(conn.close)` if that matters);
+* a failing `connect` is a **collection error** in the eager form -- no test
+  runs -- and a recorded error per row in the lazy form (`error: OperationalError`
+  in every YAML), which `--regen-all` writes without complaint.
+
 ## How the result is compared
 
 Decided from the object the function returns -- nothing to declare in the row:
@@ -189,6 +234,38 @@ addopts = "-p fuchitools.snapshots --snapshot1 before"   # plain `pytest` then c
 | `--snapshot-clean` | with `--regen-all`: empty each snapshot folder before the first file is written into it, so files of rows that left the matrix disappear. Do not combine with `-k`. |
 | `--regen-all`, `--force-regen` | `pytest-regressions`: write the expected files (`--regen-all` passes, `--force-regen` fails after writing) |
 
+### Examples
+
+From the project root, with the modules of the quick start:
+
+```
+# record snapshot "before" from one module  ->  tests/snapshots/pricing/before/
+python -m pytest tests/record_pricing_before.py -p fuchitools.snapshots --snapshot1 before --regen-all --snapshot-clean
+
+# run every matrix under tests/ and compare with "before"
+python -m pytest tests -p fuchitools.snapshots --snapshot1 before
+
+# record the new side, then compare the two recordings (nothing is executed)
+python -m pytest tests/test_pricing.py -p fuchitools.snapshots --snapshot1 after --regen-all --snapshot-clean
+python -m pytest tests/test_pricing.py -p fuchitools.snapshots --snapshot1 before --snapshot2 after
+
+# only the "calc" rows, stop at the first failure (never --snapshot-clean together with -k)
+python -m pytest tests -p fuchitools.snapshots --snapshot1 before -k calc -x
+
+# snapshots outside the tests folder, e.g. a shared drive
+python -m pytest tests -p fuchitools.snapshots --snapshot1 before --snapshots-dir \\server\share\snapshots
+
+# with addopts = "-p fuchitools.snapshots --snapshot1 before" in pyproject.toml, plain pytest compares
+python -m pytest tests
+```
+
+The Python wrappers build exactly these commands (and add `-p fuchitools.snapshots`
+themselves): `generate("tests/record_pricing_before.py", "before")` is the
+first one, `compare("tests", "before")` the second,
+`compare("tests/test_pricing.py", "before", "after")` the fourth,
+`compare("tests", "before", extra=["-k", "calc", "-x"])` the fifth and
+`compare("tests", "before", snapshots_dir=r"\\server\share\snapshots")` the sixth.
+
 The behaviour inherited from `pytest-regressions` that surprises people:
 **without `--regen-all`, a missing expected file is created and the test fails**
 with `File not found in data directory, created: ...`. The next run compares.
@@ -235,6 +312,10 @@ builds them from the matrix at collection time, so deleting a module (or its
   list of numbers, is written to CSV instead.
 * Argument lambdas are evaluated **every time they are used**, once per row;
   cache them in the matrix (`functools.lru_cache`) if that is too slow.
+* A shared connection or handle (see
+  [Sharing an object between rows](#sharing-an-object-between-rows)) is the
+  opposite case: the **same object in every row**, so state left by one row --
+  an open transaction, a temporary table -- reaches the next.
 * Renaming the test or the module changes the default `subdir`: the old folder
   stays behind (`remove` with the old name, or fix `subdir`).
 * Plain `pytest --regen-all` does not delete files of rows that left the
