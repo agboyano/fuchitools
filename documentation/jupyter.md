@@ -37,8 +37,8 @@ Or from a shell: `python -m fuchitools.jupyter`
 
 ```
 ORIGIN  PID    STATE     KERNEL ID       STARTED           EXECUTABLE  CWD
-vscode  16864  responds  v36d60449783f1  2026-08-25 13:26  python.exe  g:\...\notebooks
-vscode  23716  responds  v396a5614e76dc  2026-08-25 13:26  python.exe  g:\...\fondos\notebooks
+vscode  18420  responds  v3a1b2c3d4e5f6  2026-01-15 09:30  python.exe  c:\...\notebooks
+vscode  24680  responds  v3d4e5f6a7b8c9  2026-01-15 09:30  python.exe  d:\...\notebooks
 ```
 
 A full listing takes about 1.5 s with a couple of live kernels and a thousand
@@ -117,7 +117,7 @@ Every function below takes `kernel` as any of:
 
 - a `KernelInfo` from `list_active_kernels()` or `current_kernel()`;
 - a path to a connection file, `str` or `Path`;
-- a kernel id such as `"v36d60449783f1"` (the file is looked up in the
+- a kernel id such as `"v3a1b2c3d4e5f6"` (the file is looked up in the
   runtime directories; `FileNotFoundError` if nothing matches).
 
 ## Running code in a kernel
@@ -249,7 +249,7 @@ for k in list_active_kernels():
     for c in kernel_clients(k):
         print(k.kernel_id[:14], "<-", c.name, c.pid, c.ports)
 
-# v36d60449783f1 <- Code.exe 20348 [9001, 9002, 9003, 9004]
+# v3a1b2c3d4e5f6 <- Code.exe 21500 [9001, 9002, 9003, 9004]
 ```
 
 Read it for what it is: inference from open sockets, not a roster the kernel
@@ -266,7 +266,7 @@ connection may be a tab opened yesterday and forgotten.
 
 ```python
 notebook_of(k)
-# 'g:\\arquitectura_gestora\\desarrollo\\notebooks\\carga_imve.ipynb'
+# 'c:\\proyectos\\notebooks\\analisis.ipynb'
 
 notebook_of(k, allow_execution=False)
 # None for a VSCode kernel: no server knows about it

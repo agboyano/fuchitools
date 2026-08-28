@@ -181,7 +181,7 @@ def normalize_frame(df: pd.DataFrame) -> pd.DataFrame:
     """The canonical form of a frame, the one that is written and compared.
 
     * an unnamed ``RangeIndex`` is dropped, any other index becomes columns;
-    * column labels become ``str`` (``93707.0`` -> ``"93707"``), MultiIndex
+    * column labels become ``str`` (``1001.0`` -> ``"1001"``), MultiIndex
       labels are joined with ``|``, duplicates get ``__2``, ``__3`` ...;
     * non-numeric columns are converted with ``to_numeric`` when every value
       allows it, otherwise to the ``string`` dtype with missing values as ``""``

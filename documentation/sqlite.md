@@ -23,17 +23,17 @@ connection**.
 from fuchitools.sqlite import exe, df_from_sqlite
 
 # one-off: opened, committed, closed
-exe("g:/control_iics/iics.db", "CREATE TABLE t (a, b);")
+exe("data/prices.db", "CREATE TABLE t (a, b);")
 
 # a session you control
 import sqlite3
-with sqlite3.connect("g:/control_iics/iics.db") as con:
+with sqlite3.connect("data/prices.db") as con:
     exe(con, "INSERT INTO t VALUES (1, 2);")
     df = df_from_sqlite(con, "SELECT * FROM t;")
 ```
 
 That behaviour comes from the `conn_or_db` decorator, which is also usable on
-your own functions (`carga_iics.py` decorates ~40 of them). `connection(x)` is
+your own functions, which is the usual reason to reach for it. `connection(x)` is
 the helper underneath, returning `(connection, was_already_a_connection)`;
 `is_conn(x)` is the predicate. Anything that is neither a connection nor a
 path raises `TypeError`.
@@ -60,11 +60,11 @@ is a `ValueError`.
 ```python
 exe(db, "DELETE FROM prices WHERE date < '2020-01-01';")
 
-exe(db, ("INSERT INTO prices (ticker, close) VALUES (?, ?);", ("san sm equity", 4.21)))
+exe(db, ("INSERT INTO prices (ticker, close) VALUES (?, ?);", ("acme sm equity", 4.21)))
 
 exe(db,
     "CREATE TABLE IF NOT EXISTS prices (ticker, date, close);",
-    ("INSERT INTO prices VALUES (?, ?, ?);", ("bbva sm equity", "2026-08-26", 11.3)))
+    ("INSERT INTO prices VALUES (?, ?, ?);", ("globex sm equity", "2026-08-26", 11.3)))
 ```
 
 **Two or more statements run atomically.** They are wrapped in
@@ -96,12 +96,12 @@ df_from_sqlite(conn_or_path, sql, params=None, parse_dates=None, **kwargs)
 ```python
 from fuchitools.sqlite import df_to_sql, df_from_sqlite
 
-df_to_sql("iics.db", positions, "positions", if_exists="replace")
+df_to_sql("prices.db", positions, "positions", if_exists="replace")
 
 df = df_from_sqlite(
-    "iics.db",
-    "SELECT * FROM positions WHERE cartera = ? AND date >= ?;",
-    params=(93702, "2026-01-01 00:00:00"),
+    "prices.db",
+    "SELECT * FROM positions WHERE cuenta = ? AND date >= ?;",
+    params=(1001, "2026-01-01 00:00:00"),
     parse_dates=["date"],
 )
 ```
@@ -111,7 +111,7 @@ keyword arguments go straight to `DataFrame.to_sql` (`dtype`, `chunksize`)
 and `pandas.read_sql` (`index_col`, `dtype`). `df_to_sql` returns whatever
 `to_sql` returns.
 
-Prefer `params=` to formatting dates into the SQL string; `sqlite_iics.py`
+Prefer `params=` to formatting dates into the SQL string; `queries.py`
 still does the latter with `to_sqlite_dt`, which is why that helper exists.
 
 ## Dates into SQLite
@@ -131,7 +131,7 @@ from fuchitools.sqlite import to_sqlite_dt, df_datetimes_to_sqlite
 to_sqlite_dt("30/12/2024")     # '2024-12-30 00:00:00'
 to_sqlite_dt(20261202)         # '2026-12-02 00:00:00'
 
-df_datetimes_to_sqlite(df, ["fecha_valor", "fecha_liquidacion"])
+df_datetimes_to_sqlite(df, ["fecha", "fecha_pago"])
 ```
 
 Things to keep in mind:
@@ -169,10 +169,10 @@ get_variable(conn_or_path, variable, table="variables", default=<raise>)
 ```python
 from fuchitools.sqlite import set_variable, get_variable
 
-set_variable("iics.db", "ultima_carga", "2026-08-26")
-get_variable("iics.db", "ultima_carga")            # '2026-08-26'
-get_variable("iics.db", "no_existe", default=0)    # 0
-get_variable("iics.db", "no_existe")               # KeyError
+set_variable("prices.db", "last_load", "2026-08-26")
+get_variable("prices.db", "last_load")            # '2026-08-26'
+get_variable("prices.db", "no_existe", default=0)    # 0
+get_variable("prices.db", "no_existe")               # KeyError
 ```
 
 `get_variable` raises `KeyError` for a name that is not stored **or when the
@@ -193,7 +193,7 @@ actually used). For a sheet into a table:
 import pandas as pd
 from fuchitools.sqlite import df_to_sql
 
-df_to_sql("iics.db", pd.read_excel("posiciones.xlsx", sheet_name="uno"), "posiciones")
+df_to_sql("prices.db", pd.read_excel("ventas.xlsx", sheet_name="uno"), "ventas")
 ```
 
 ## Tests

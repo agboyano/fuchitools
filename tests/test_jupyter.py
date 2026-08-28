@@ -74,8 +74,8 @@ class FakeProcess:
 @pytest.mark.parametrize(
     "name, expected",
     [
-        ("kernel-1234.json", "1234"),
-        ("kernel-v36d60449783f1e73.json", "v36d60449783f1e73"),
+        ("kernel-18420.json", "18420"),
+        ("kernel-v3a1b2c3d4e5f6e73.json", "v3a1b2c3d4e5f6e73"),
         ("kernel-v2-10564vnF3ooI9Azwt.json", "v2-10564vnF3ooI9Azwt"),
         ("something-else.json", "something-else"),
     ],
@@ -305,10 +305,10 @@ def test_worth_pinging_tcp_probe_defaults_to_localhost(monkeypatch):
     "name, data, expected",
     [
         # VSCode: recognisable prefix plus an opaque kernel_name
-        ("kernel-v36d60449783f1e73.json", VSCODE_V3, "vscode"),
+        ("kernel-v3a1b2c3d4e5f6e73.json", VSCODE_V3, "vscode"),
         ("kernel-v2-10564vnF3ooI9Azwt.json", {"kernel_name": ""}, "vscode"),
         # a VSCode looking name with a real kernel_name is not a pattern we know
-        ("kernel-v36d60449783f1e73.json", {"kernel_name": "python3"}, "unknown"),
+        ("kernel-v3a1b2c3d4e5f6e73.json", {"kernel_name": "python3"}, "unknown"),
         # plain uuid plus a readable kernel_name: started from a terminal
         ("kernel-f6b25f29-31f1-4613.json", TERMINAL, "terminal"),
         # nothing to go on
@@ -322,8 +322,8 @@ def test_classify_origin(name, data, expected):
 
 def test_classify_origin_server_wins_over_file_name():
     """A kernel claimed by a live server is a server kernel, whatever its name."""
-    name = Path("kernel-v36d60449783f1e73.json")
-    server_kernels = {"v36d60449783f1e73": "http://localhost:8888/"}
+    name = Path("kernel-v3a1b2c3d4e5f6e73.json")
+    server_kernels = {"v3a1b2c3d4e5f6e73": "http://localhost:8888/"}
     assert jup.classify_origin(name, VSCODE_V3, server_kernels) == "server"
 
 
@@ -808,7 +808,7 @@ def install_connections(monkeypatch, connections, kernel_pids=frozenset()):
     monkeypatch.setattr(jup, "_scan_processes", lambda: ({}, set(kernel_pids)))
     monkeypatch.setattr(
         jup.psutil, "Process", lambda pid: types.SimpleNamespace(
-            name=lambda: "Code.exe", exe=lambda: r"C:\VSCode\Code.exe"
+            name=lambda: "Code.exe", exe=lambda: r"C:\Program Files\Microsoft VS Code\Code.exe"
         )
     )
 
@@ -816,15 +816,15 @@ def install_connections(monkeypatch, connections, kernel_pids=frozenset()):
 def test_kernel_clients_groups_ports_by_process(tmp_path, monkeypatch):
     path = write_connection_file(tmp_path, "kernel-a.json", VSCODE_V3)
     install_connections(monkeypatch, [
-        FakeConnection(9001, 20348),
-        FakeConnection(9002, 20348),
-        FakeConnection(9004, 20348),
+        FakeConnection(9001, 21500),
+        FakeConnection(9002, 21500),
+        FakeConnection(9004, 21500),
     ])
 
     clients = jup.kernel_clients(path)
 
     assert len(clients) == 1
-    assert clients[0].pid == 20348
+    assert clients[0].pid == 21500
     assert clients[0].name == "Code.exe"
     assert clients[0].ports == [9001, 9002, 9004]
 
@@ -834,19 +834,19 @@ def test_kernel_clients_excludes_the_kernels_own_family(tmp_path, monkeypatch):
     path = write_connection_file(tmp_path, "kernel-a.json", VSCODE_V3)
     install_connections(
         monkeypatch,
-        [FakeConnection(9002, 16516), FakeConnection(9002, 20348)],
-        kernel_pids={16516, 16864},
+        [FakeConnection(9002, 18410), FakeConnection(9002, 21500)],
+        kernel_pids={18410, 18420},
     )
 
-    assert [c.pid for c in jup.kernel_clients(path)] == [20348]
+    assert [c.pid for c in jup.kernel_clients(path)] == [21500]
 
 
 def test_kernel_clients_ignores_other_ports_and_states(tmp_path, monkeypatch):
     path = write_connection_file(tmp_path, "kernel-a.json", VSCODE_V3)
     install_connections(monkeypatch, [
-        FakeConnection(9002, 20348, status=jup.psutil.CONN_LISTEN),
-        FakeConnection(8888, 20348),
-        FakeConnection(9002, 20348, remote=False),
+        FakeConnection(9002, 21500, status=jup.psutil.CONN_LISTEN),
+        FakeConnection(8888, 21500),
+        FakeConnection(9002, 21500, remote=False),
         FakeConnection(9003, 777),
     ])
 
@@ -887,10 +887,10 @@ def test_notebook_of_falls_back_to_the_kernel_namespace(tmp_path, monkeypatch):
     monkeypatch.setattr(jup, "_server_sessions", lambda timeout: {})
     monkeypatch.setattr(
         jup, "execute_in_kernel",
-        lambda k, code, timeout=None: jup.ExecutionResult(output="notebooks/carga_imve.ipynb\n"),
+        lambda k, code, timeout=None: jup.ExecutionResult(output="notebooks/analisis.ipynb\n"),
     )
 
-    assert jup.notebook_of(path) == "notebooks/carga_imve.ipynb"
+    assert jup.notebook_of(path) == "notebooks/analisis.ipynb"
 
 
 def test_notebook_of_can_refuse_to_touch_the_kernel(tmp_path, monkeypatch):

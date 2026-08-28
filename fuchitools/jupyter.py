@@ -466,7 +466,7 @@ def classify_origin(
     in doubt it returns `unknown` rather than forcing a label.
 
     Example:
-        path = Path("kernel-v36d60449783f1.json")
+        path = Path("kernel-v3a1b2c3d4e5f6.json")
         classify_origin(path, _read_json(path), _live_servers(2.0))
         # 'vscode'
     """
@@ -510,8 +510,8 @@ def list_active_kernels(
         for kernel in list_active_kernels():
             print(kernel.origin, kernel.pid, kernel.cwd)
 
-        # vscode 16864 g:\\arquitectura_gestora\\desarrollo\\notebooks
-        # vscode 23040 g:\\arquitectura_gestora\\desarrollo\\fondos\\notebooks
+        # vscode 18420 c:\\proyectos\\notebooks
+        # vscode 24680 d:\\analisis\\notebooks
 
         # the one working on a given notebook
         mine = [k for k in list_active_kernels() if k.cwd == os.getcwd()]
@@ -978,7 +978,7 @@ def kernel_clients(kernel: KernelRef) -> List[ClientInfo]:
             for client in kernel_clients(kernel):
                 print(kernel.kernel_id, "<-", client.name, client.pid)
 
-        # v36d60449783f1 <- Code.exe 20348
+        # v3a1b2c3d4e5f6 <- Code.exe 21500
     """
     path = _resolve_connection_file(kernel)
     data = _read_json(path)
@@ -1058,7 +1058,7 @@ def notebook_of(
 
     Example:
         notebook_of(list_active_kernels()[0])
-        # 'g:\\\\arquitectura_gestora\\\\desarrollo\\\\notebooks\\\\carga_imve.ipynb'
+        # 'c:\\\\proyectos\\\\notebooks\\\\analisis.ipynb'
 
         # without touching the kernel at all
         notebook_of(kernel, allow_execution=False)
@@ -1089,7 +1089,7 @@ def format_table(kernels: Sequence[KernelInfo]) -> str:
         print(format_table(list_active_kernels()))
 
         # ORIGIN  PID    STATE     KERNEL ID       STARTED           EXECUTABLE  CWD
-        # vscode  16864  responds  v36d60449783f1  2026-08-25 13:26  python.exe  g:\\...\\notebooks
+        # vscode  18420  responds  v3a1b2c3d4e5f6  2026-01-15 09:30  python.exe  c:\\...\\notebooks
     """
     header = ("ORIGIN", "PID", "STATE", "KERNEL ID", "STARTED", "EXECUTABLE", "CWD")
 

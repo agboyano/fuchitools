@@ -86,8 +86,8 @@ through three iterations before it was correct:
 
 **Attempt 2 — drop files whose port is owned by a pid the process sweep already
 found.** Matched nothing at all. The reason is that **the port is held by the
-launcher process, not by the kernel**: port 9002 belonged to pid 16516 while
-the ipykernel process was pid 16864.
+launcher process, not by the kernel**: port 9002 belonged to pid 18410 while
+the ipykernel process was pid 18420.
 
 **Attempt 3 — compare against the whole process family.** `_scan_processes`
 now returns every pid whose command line mentions ipykernel, undeduplicated,
@@ -136,8 +136,8 @@ Or as a script: `python -m fuchitools.jupyter`
 
 ```
 ORIGIN  PID    STATE     KERNEL ID       STARTED           EXECUTABLE  CWD
-vscode  16864  responds  v36d60449783f1  2026-08-25 13:26  python.exe  g:\...\notebooks
-vscode  23716  responds  v396a5614e76dc  2026-08-25 13:26  python.exe  g:\...\fondos\notebooks
+vscode  18420  responds  v3a1b2c3d4e5f6  2026-01-15 09:30  python.exe  c:\...\notebooks
+vscode  24680  responds  v3d4e5f6a7b8c9  2026-01-15 09:30  python.exe  d:\...\notebooks
 ```
 
 ### `list_active_kernels(timeout=3.0, include_dead=False)`
@@ -231,9 +231,9 @@ Run from inside a kernel:
 
 ```
 running_in_kernel: True
-id: tmpo37ib3qg | origin: terminal | pid: 5712
+id: tmpa1b2c3d4e5 | origin: terminal | pid: 7310
 alive: True | responds: False
-cwd: G:\arquitectura_gestora\desarrollo\fuchitools
+cwd: c:\proyectos\fuchitools
 ```
 
 ### `kernel_clients(kernel)`
@@ -249,9 +249,9 @@ for kernel in list_active_kernels():
 ```
 
 ```
-v36d60449783f1 <- Code.exe 20348 [9001, 9002, 9003, 9004]
-v38c172c22108e <- Code.exe 20348 [9016, 9017, 9018, 9019]
-v32f91e09f284e <- Code.exe 20348 [9006, 9007, 9013, 9014]
+v3a1b2c3d4e5f6 <- Code.exe 21500 [9001, 9002, 9003, 9004]
+v3b2c3d4e5f6a7 <- Code.exe 21500 [9016, 9017, 9018, 9019]
+v3c3d4e5f6a7b8 <- Code.exe 21500 [9006, 9007, 9013, 9014]
 ```
 
 The kernel's own process family is filtered out, or the launcher — which holds
@@ -281,14 +281,14 @@ The document a kernel belongs to. Two routes, tried in order:
 
 ```python
 notebook_of(kernel)
-# 'g:\\arquitectura_gestora\\desarrollo\\notebooks\\carga_imve.ipynb'
+# 'c:\\proyectos\\notebooks\\analisis.ipynb'
 
 notebook_of(kernel, allow_execution=False)
 # None — no live server knows about a VSCode kernel
 ```
 
 Measured against three live VSCode kernels, route 2 identified all three
-(`carga_imve.ipynb`, `Untitled-1.ipynb`, `web_inversis_com.ipynb`) and route 1
+(`analisis.ipynb`, `Untitled-1.ipynb`, `scraping_web.ipynb`) and route 1
 none of them, which is exactly what the design predicts.
 
 The probe is a pure read — `globals().get(...)`, no assignment, no history
@@ -396,8 +396,8 @@ specific output, and doctests that cannot pass are worse than none.
 
 ## Prior art in this repo
 
-The module supersedes a throwaway script (`kinspect.py`) written during the
-IMVE portfolio work on 24-08-2026, which connected to the last 8 connection
-files by mtime and executed inspection code in each. `execute_in_kernel` now
+The module supersedes a throwaway script (`kinspect.py`) written during a data
+run, which connected to the last 8 connection files by mtime and executed
+inspection code in each. `execute_in_kernel` now
 covers what that script did, on top of a listing that tells live kernels from
 the 1,118 dead files instead of guessing by modification time.

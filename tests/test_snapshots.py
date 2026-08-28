@@ -112,11 +112,11 @@ def test_run_row_evaluates_callables_and_captures_exceptions():
 
 
 def test_normalize_frame_index_labels_duplicates_and_sorting():
-    df = pd.DataFrame([[2, "b", 1.5], [1, "a", 2.5]], columns=pd.MultiIndex.from_tuples([("x", 93707.0), ("x", 93708.0), ("y", "")]))
+    df = pd.DataFrame([[2, "b", 1.5], [1, "a", 2.5]], columns=pd.MultiIndex.from_tuples([("x", 1001.0), ("x", 1002.0), ("y", "")]))
     df.index = pd.Index([10, 20], name="k")
     out = normalize_frame(df)
-    assert list(out.columns) == ["k", "x|93707", "x|93708", "y"]   # trailing empty levels are dropped
-    assert out["k"].tolist() == [10, 20] and out["x|93707"].tolist() == [2, 1]   # sorted by k first
+    assert list(out.columns) == ["k", "x|1001", "x|1002", "y"]   # trailing empty levels are dropped
+    assert out["k"].tolist() == [10, 20] and out["x|1001"].tolist() == [2, 1]   # sorted by k first
 
     dup = pd.DataFrame([[1, 2, 3]], columns=["c", "c", "d"])
     assert list(normalize_frame(dup).columns) == ["c", "c__2", "d"]
@@ -127,7 +127,7 @@ def test_normalize_frame_index_labels_duplicates_and_sorting():
 
 
 def test_normalize_frame_object_columns():
-    df = pd.DataFrame({"code": ["93707", "93708"], "mixed": ["  ", 2.5], "text": [None, "a"], "lists": [[1], [2]]})
+    df = pd.DataFrame({"code": ["1001", "1002"], "mixed": ["  ", 2.5], "text": [None, "a"], "lists": [[1], [2]]})
     out = normalize_frame(df)
     assert out["code"].dtype.kind == "i"                    # numeric text becomes numeric
     assert isinstance(out["mixed"].dtype, pd.StringDtype)  # anything else becomes string

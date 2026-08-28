@@ -10,7 +10,7 @@ from fuchitools.misc import stream_logger
 
 log = stream_logger(__name__, level="INFO")
 
-log.info("cargando cartera %s", 93702)
+log.info("cargando cuenta %s", 1001)
 log.error("no se pudo abrir %s", path)
 ```
 

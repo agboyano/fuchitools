@@ -143,7 +143,7 @@ differ only in things that do not matter still match:
 
 * an unnamed `RangeIndex` is dropped; any other index (named, dates,
   MultiIndex) becomes leading columns;
-* column labels become `str`, `93707.0` -> `"93707"`, MultiIndex labels are
+* column labels become `str`, `1001.0` -> `"1001"`, MultiIndex labels are
   joined with `|` (trailing empty levels dropped), duplicated labels get
   `__2`, `__3`, ...;
 * non-numeric columns are converted with `to_numeric` when every value allows

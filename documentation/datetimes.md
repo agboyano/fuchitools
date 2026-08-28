@@ -31,7 +31,7 @@ to_date(20261202)                      # datetime.date(2026, 12, 2)
 to_date("30/12/2024")                  # datetime.date(2024, 12, 30)
 to_date("3/2/25")                      # datetime.date(2025, 2, 3)   <- 3 February
 to_date("2026-02-04 23:00:37.651355")  # datetime.date(2026, 2, 4)
-to_date(df["fec_valoracion"].max())    # a pd.Timestamp -> date
+to_date(df["fecha"].max())    # a pd.Timestamp -> date
 to_date("30/2/23")                     # ValueError
 to_date(pd.NaT)                        # ValueError
 

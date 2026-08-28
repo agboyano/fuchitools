@@ -74,14 +74,14 @@ click_by_class(browser, class_name)              # click, by class name instead
 ```python
 from fuchitools.selenium import input_by_id, select_by_id, click_by_id, sleep
 
-input_by_id(browser, "usuario", "agarcia")
-input_by_id(browser, "clave", password)
-click_by_id(browser, "btnEntrar")
+input_by_id(browser, "txtUsuario", "usuario_demo")
+input_by_id(browser, "txtClave", password)
+click_by_id(browser, "btnAcceder")
 
 sleep(2, 5)                          # random pause, see below
 
-select_by_id(browser, "cboCartera", "93702")
-click_by_id(browser, "btnDescargar")
+select_by_id(browser, "cboCuenta", "1001")
+click_by_id(browser, "btnExportar")
 ```
 
 `select_by_id` is the one with extra machinery: it waits up to `timeout`

@@ -15,9 +15,9 @@ ends but the sheet carries on with blank rows, a total, or a note.
 ```python
 from fuchitools.pandas import load_excel
 
-df = load_excel("posiciones.xlsx")                       # first sheet
-df = load_excel("posiciones.xlsx", sheet_name="cartera") # by name
-raw = load_excel("posiciones.xlsx", header=None, drop_na_first_col=False)
+df = load_excel("ventas.xlsx")                       # first sheet
+df = load_excel("ventas.xlsx", sheet_name="datos") # by name
+raw = load_excel("ventas.xlsx", header=None, drop_na_first_col=False)
 ```
 
 Things worth knowing before relying on it:

@@ -308,10 +308,10 @@ def test_df_datetimes_to_sqlite_missing_column():
 # --- variables ----------------------------------------------------------
 
 def test_set_and_get_variable(db_path):
-    assert set_variable(db_path, "ultima_carga", "2026-08-26") is True
-    assert get_variable(db_path, "ultima_carga") == "2026-08-26"
-    set_variable(db_path, "ultima_carga", 1.5)                # overwrite
-    assert get_variable(db_path, "ultima_carga") == 1.5
+    assert set_variable(db_path, "last_load", "2026-08-26") is True
+    assert get_variable(db_path, "last_load") == "2026-08-26"
+    set_variable(db_path, "last_load", 1.5)                # overwrite
+    assert get_variable(db_path, "last_load") == 1.5
     assert rows(db_path, "SELECT count(*) FROM variables") == [(1,)]
 
 

@@ -48,8 +48,8 @@ def load_excel(excel_filename, sheet_name=0, drop_na_first_col=True, **kwargs) -
 
     Examples
     --------
-    >>> df = load_excel("posiciones.xlsx", sheet_name="cartera")
-    >>> raw = load_excel("posiciones.xlsx", drop_na_first_col=False, header=None)
+    >>> df = load_excel("ventas.xlsx", sheet_name="datos")
+    >>> raw = load_excel("ventas.xlsx", drop_na_first_col=False, header=None)
     """
     if sheet_name is None:
         sheet_name = 0

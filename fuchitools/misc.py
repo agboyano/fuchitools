@@ -54,7 +54,7 @@ def stream_logger(
     Examples
     --------
     >>> log = stream_logger(__name__, "INFO")
-    >>> log.info("cargando cartera %s", 93702)
+    >>> log.info("cargando cuenta %s", 1001)
     """
     lvl = _resolve_level(level)
     logger = logging.getLogger(module_name)

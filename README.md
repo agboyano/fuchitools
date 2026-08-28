@@ -2,8 +2,8 @@
 
 General purpose Python utilities: dates, DataFrames in and out of databases,
 browser scraping, Jupyter kernels, snapshot tests generated from a matrix of
-calls. Written for the fund architecture work, so the defaults lean towards
-European date order, Spanish web forms and DuckDB.
+calls. Written for day-to-day data work, so the defaults lean towards European
+date order, Spanish web forms and DuckDB.
 
 ## Modules
 
@@ -67,7 +67,7 @@ duckdb itself, which is why duckdb is only a test dependency.
 The package is installed editable, via a PEP 660 import hook. Static analysers
 cannot follow that: Pylance reports the imports as unresolved even though they
 work at runtime. The workspace works around it with
-`python.analysis.extraPaths` in `desarrollo-workspace.code-workspace`.
+`python.analysis.extraPaths` in `workspace.code-workspace`.
 
 ## Tests
 

@@ -75,7 +75,7 @@ class SqliteConnection(sqlite3.Connection):
     thing it adds is the ``path`` attribute. It can also be used directly, for
     instance when the rest of the code wants to print where it is writing::
 
-        with SqliteConnection("iics.db") as conn:
+        with SqliteConnection("prices.db") as conn:
             ...
 
     Note that ``with`` on an sqlite3 connection commits/rolls back but does
@@ -310,10 +310,10 @@ def exe(conn: ConnOrPath, *sql: SqlItem) -> sqlite3.Cursor:
     Examples
     --------
     >>> exe(db, "DELETE FROM prices WHERE date < '2020-01-01';")
-    >>> exe(db, ("INSERT INTO prices VALUES (?, ?);", ("san sm equity", 4.21)))
+    >>> exe(db, ("INSERT INTO prices VALUES (?, ?);", ("acme sm equity", 4.21)))
     >>> exe(db,
     ...     "CREATE TABLE IF NOT EXISTS prices (ticker, date, close);",
-    ...     ("INSERT INTO prices VALUES (?, ?, ?);", ("bbva", "2026-08-26", 11.3)))
+    ...     ("INSERT INTO prices VALUES (?, ?, ?);", ("globex", "2026-08-26", 11.3)))
     """
     if not sql:
         raise ValueError("exe() needs at least one SQL statement")
@@ -394,9 +394,9 @@ def df_from_sqlite(conn: ConnOrPath, sql: str, params=None, parse_dates=None,
 
     Examples
     --------
-    >>> df_from_sqlite("iics.db",
-    ...     "SELECT * FROM positions WHERE cartera = ? AND date >= ?;",
-    ...     params=(93702, "2026-01-01 00:00:00"), parse_dates=["date"])
+    >>> df_from_sqlite("prices.db",
+    ...     "SELECT * FROM positions WHERE cuenta = ? AND date >= ?;",
+    ...     params=(1001, "2026-01-01 00:00:00"), parse_dates=["date"])
     """
     return pd.read_sql(sql, conn, params=params, parse_dates=parse_dates, **kwargs)
 
