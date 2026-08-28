@@ -1,8 +1,9 @@
 # fuchitools
 
 General purpose Python utilities: dates, DataFrames in and out of databases,
-browser scraping, Jupyter kernels. Written for the fund architecture work, so
-the defaults lean towards European date order, Spanish web forms and DuckDB.
+browser scraping, Jupyter kernels, snapshot tests generated from a matrix of
+calls. Written for the fund architecture work, so the defaults lean towards
+European date order, Spanish web forms and DuckDB.
 
 ## Modules
 
@@ -14,6 +15,7 @@ the defaults lean towards European date order, Spanish web forms and DuckDB.
 | `pandas` | Read an Excel sheet, outer-join a list of DataFrames | [documentation/pandas.md](documentation/pandas.md) |
 | `selenium` | Configured Firefox/Chrome drivers and form helpers | [documentation/selenium.md](documentation/selenium.md) |
 | `jupyter` | Find, inspect, drive and stop local Jupyter kernels | [documentation/jupyter.md](documentation/jupyter.md) |
+| `snapshots` | Record what a matrix of calls returns, then check it again elsewhere (pytest plugin over `pytest-regressions`) | [documentation/snapshots.md](documentation/snapshots.md) |
 | `misc` | A console logger in one line | [documentation/misc.md](documentation/misc.md) |
 
 Each page in [documentation/](documentation/) is the how-to for one module.
@@ -24,12 +26,13 @@ code — lives separately in [memory/jupyter.md](memory/jupyter.md).
 ## Importing
 
 `__init__.py` imports only `datetimes`, `sqlite` and `pandas`. The rest are
-imported explicitly, on purpose: `duckdb`, `selenium` and `jupyter` either
-carry heavy dependencies or are only wanted occasionally.
+imported explicitly, on purpose: `duckdb`, `selenium`, `jupyter` and
+`snapshots` either carry heavy dependencies or are only wanted occasionally.
 
 ```python
 from fuchitools.datetimes import to_date        # always available
 from fuchitools import jupyter                  # explicit
+from fuchitools.snapshots import snapshot_test  # explicit; also a pytest plugin: -p fuchitools.snapshots
 ```
 
 `fuchitools.pandas` and `fuchitools.duckdb` shadow the names of the libraries
@@ -48,17 +51,18 @@ needs only `pandas`; the heavier modules are extras:
 | `excel` | `openpyxl` | `fuchitools.pandas.load_excel` |
 | `selenium` | `selenium`, `undetected-chromedriver` | `fuchitools.selenium` |
 | `jupyter` | `psutil`, `jupyter-client`, `jupyter-core` | `fuchitools.jupyter` |
-| `all` | the three above | |
+| `snapshots` | `pytest`, `pytest-regressions`, `pyyaml` | `fuchitools.snapshots` |
+| `all` | the four above | |
 | `test` | `pytest`, `duckdb`, plus `all` | running the test suite |
 
 ```
 pip install -e ".[all,test]"
 ```
 
-Importing `fuchitools.selenium` or `fuchitools.jupyter` without their extra
-raises an `ImportError` naming the extra to install. `fuchitools.duckdb` takes
-the connection as an argument and never imports duckdb itself, which is why
-duckdb is only a test dependency.
+Importing `fuchitools.selenium`, `fuchitools.jupyter` or `fuchitools.snapshots`
+without their extra raises an `ImportError` naming the extra to install.
+`fuchitools.duckdb` takes the connection as an argument and never imports
+duckdb itself, which is why duckdb is only a test dependency.
 
 The package is installed editable, via a PEP 660 import hook. Static analysers
 cannot follow that: Pylance reports the imports as unresolved even though they
@@ -71,12 +75,15 @@ work at runtime. The workspace works around it with
 python -m pytest tests -q
 ```
 
-341 tests, in [tests/](tests/), one file per module. Nothing external is
+361 tests, in [tests/](tests/), one file per module. Nothing external is
 touched: `test_sqlite.py` and `test_duckdb_update_table.py` use temporary or
 in-memory databases, `test_pandas.py` builds its workbooks in memory,
-`test_selenium.py` starts no browser, and `test_jupyter.py` is entirely
-synthetic — no kernel is started, pinged, stopped or inspected — so the suite
-is safe to run with live notebooks open.
+`test_selenium.py` starts no browser, `test_jupyter.py` is entirely
+synthetic — no kernel is started, pinged, stopped or inspected — and
+`test_snapshots.py` runs its matrices of dummy functions through `pytester`
+in temporary directories (the `generate`/`compare` tests start a pytest
+subprocess with the current interpreter, which is where most of its ~35 s go),
+so the suite is safe to run with live notebooks open.
 
 ## A note on these documents
 

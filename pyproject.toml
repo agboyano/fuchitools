@@ -27,6 +27,12 @@ jupyter = [
     "jupyter-client>=8.0",
     "jupyter-core>=5.0",
 ]
+# fuchitools.snapshots: a pytest plugin, so pytest itself is a runtime dependency here
+snapshots = [
+    "pytest>=7.0",
+    "pytest-regressions>=2.10",
+    "pyyaml>=6.0",
+]
 all = [
     "openpyxl>=3.1",
     "selenium>=4.6",
@@ -34,6 +40,9 @@ all = [
     "psutil>=5.9",
     "jupyter-client>=8.0",
     "jupyter-core>=5.0",
+    "pytest>=7.0",
+    "pytest-regressions>=2.10",
+    "pyyaml>=6.0",
 ]
 test = [
     "pytest>=7.0",
@@ -46,6 +55,8 @@ test = [
     "psutil>=5.9",
     "jupyter-client>=8.0",
     "jupyter-core>=5.0",
+    "pytest-regressions>=2.10",
+    "pyyaml>=6.0",
 ]
 
 [tool.setuptools.packages.find]
