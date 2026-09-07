@@ -6,7 +6,6 @@ import os
 import pytest
 
 pytest.importorskip("selenium")
-pytest.importorskip("undetected_chromedriver")
 
 from fuchitools import selenium as fsel  # noqa: E402
 from fuchitools.selenium import (  # noqa: E402

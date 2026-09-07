@@ -6,9 +6,12 @@ kind of job, so most of the configuration is about making files land in a
 known directory without a dialog.
 
 Needs the `selenium` extra — `pip install fuchitools[selenium]` — which brings
-`selenium` and `undetected-chromedriver`. Importing the module without them
-raises an `ImportError` that says so. This is also why
+`selenium` and `undetected-chromedriver`. Importing the module without
+`selenium` raises an `ImportError` that says so. This is also why
 [`__init__.py`](../fuchitools/__init__.py) does not import it automatically.
+`undetected-chromedriver` is only imported when `undetected_chrome_driver` is
+called, so the Firefox side works with plain `selenium` installed; calling the
+Chrome driver without it raises an `ImportError` naming that package.
 
 ## Building a driver
 

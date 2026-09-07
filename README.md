@@ -49,7 +49,7 @@ needs only `pandas`; the heavier modules are extras:
 | Extra | Brings | Needed by |
 |---|---|---|
 | `excel` | `openpyxl` | `fuchitools.pandas.load_excel` |
-| `selenium` | `selenium`, `undetected-chromedriver` | `fuchitools.selenium` |
+| `selenium` | `selenium`, `undetected-chromedriver` | `fuchitools.selenium` (`undetected-chromedriver` only for `undetected_chrome_driver`) |
 | `jupyter` | `psutil`, `jupyter-client`, `jupyter-core` | `fuchitools.jupyter` |
 | `snapshots` | `pytest`, `pytest-regressions`, `pyyaml` | `fuchitools.snapshots` |
 | `all` | the four above | |

@@ -4,7 +4,9 @@ then drive the page by element id.
 Written for the download-a-report kind of job, so most of the configuration
 is about making files land in a known directory without a dialog.
 
-Needs the ``selenium`` extra: ``pip install fuchitools[selenium]``.
+Needs the ``selenium`` extra: ``pip install fuchitools[selenium]``. Only
+:func:`undetected_chrome_driver` needs ``undetected-chromedriver``; it is
+imported on first use, so the Firefox side works with plain ``selenium``.
 """
 
 import os
@@ -18,11 +20,22 @@ try:
     from selenium.webdriver.firefox.service import Service as FirefoxService
     from selenium.webdriver.support import expected_conditions as EC
     from selenium.webdriver.support.ui import Select, WebDriverWait
-    import undetected_chromedriver as uc
 except ImportError as exc:  # pragma: no cover - depends on the environment
     raise ImportError(
         "fuchitools.selenium needs the 'selenium' extra: pip install fuchitools[selenium]"
     ) from exc
+
+
+def _uc():
+    """Import ``undetected_chromedriver`` lazily: only the Chrome driver needs it."""
+    try:
+        import undetected_chromedriver as uc
+    except ImportError as exc:  # pragma: no cover - depends on the environment
+        raise ImportError(
+            "undetected_chrome_driver needs undetected-chromedriver: "
+            "pip install undetected-chromedriver (or fuchitools[selenium])"
+        ) from exc
+    return uc
 
 __all__ = [
     "sleep",
@@ -111,13 +124,13 @@ def _chrome_prefs(download_dir=None) -> dict:
     }
 
 
-def _chrome_options(download_dir=None, binary_path=None, headless=False) -> "uc.ChromeOptions":
+def _chrome_options(download_dir=None, binary_path=None, headless=False):
     """Build the Chrome options :func:`undetected_chrome_driver` uses.
 
     The ``--headless=new`` flag itself is added by ``uc.Chrome(headless=True)``;
     here only the companions (window size, GPU) are set.
     """
-    options = uc.ChromeOptions()
+    options = _uc().ChromeOptions()
     if binary_path:
         options.binary_location = binary_path
     prefs = _chrome_prefs(download_dir)
@@ -182,7 +195,7 @@ def undetected_chrome_driver(download_dir=None, binary_path=None, chrome_driver_
     undetected_chromedriver.Chrome
     """
     options = _chrome_options(download_dir, binary_path, headless)
-    return uc.Chrome(
+    return _uc().Chrome(
         options=options,
         browser_executable_path=binary_path,
         driver_executable_path=chrome_driver_path,
